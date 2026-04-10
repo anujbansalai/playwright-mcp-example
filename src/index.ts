@@ -1,13 +1,17 @@
 import { env } from 'cloudflare:workers';
-
 import { createMcpAgent } from '@cloudflare/playwright-mcp';
 
 export const PlaywrightMCP = createMcpAgent(env.BROWSER);
 
 export default {
   fetch(request: Request, env: Env, ctx: ExecutionContext) {
-    const { pathname }  = new URL(request.url);
-
+    if (request.method === "HEAD") {
+      return new Response(null, {
+        status: 200,
+        headers: { "MCP-Protocol-Version": "2025-06-18" },
+      });
+    }
+    const { pathname } = new URL(request.url);
     switch (pathname) {
       case '/sse':
       case '/sse/message':
